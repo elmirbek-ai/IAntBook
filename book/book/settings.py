@@ -8,20 +8,14 @@ import environ
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
+# Environment-based configuration. Set SECRET_KEY before starting the application.
+# The local book/.env file is gitignored. Never commit real secrets.
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# Use a default SECRET_KEY if not provided in environment
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-for-development')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = env('SECRET_KEY')
+DEBUG = env.bool('DEBUG', default=False)
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 
 # Application definition
@@ -127,29 +121,11 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://80.242.57.16",
-    "https://80.242.57.16",
-    "http://80.242.57.16:8080",
-    "https://80.242.57.16:8080",
-    "http://49.13.140.64",
-    "https://49.13.140.64",
-]
-
-CORS_ALLOW_ALL_ORIGINS = True  # Временно разрешаем все origins для разработки
-
-CORS_ALLOWED_ORIGINS = [
-    "http://49.13.140.64",
-    "http://localhost:5173",
-    "http://80.242.57.16",
-    "https://80.242.57.16", 
-    "http://80.242.57.16:8080",
-    "https://80.242.57.16:8080",
-    "http://localhost:3000",
-    "http://127.0.0.1:8000",  # Убран слеш в конце
-    "http://localhost:8000",
-    "http://localhost:8080"
-] 
+# Use comma-separated, explicitly approved origins for deployed environments.
+# Example: CORS_ALLOWED_ORIGINS=https://frontend.example.com
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[])
 
 CORS_ALLOW_METHODS = [
     "GET",
